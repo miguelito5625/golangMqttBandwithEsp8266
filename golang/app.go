@@ -56,6 +56,6 @@ func main() {
                         fmt.Println("Bandwidth data published successfully:", message)
                 }
 
-                time.Sleep(2 * time.Second) // Esperar antes de volver a medir
+                time.Sleep(1 * time.Second) // Esperar antes de volver a medir
         }
 }
