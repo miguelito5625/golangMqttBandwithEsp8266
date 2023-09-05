@@ -8,7 +8,7 @@ const char* ssid = "claroExbinario";
 const char* password = "a1a2a3a4a5";
 const char* mqtt_server = "broker.emqx.io";
 const int mqtt_port = 1883;
-const char* mqtt_topic = "mike5625/redcasa";
+const char* mqtt_topic = "mike5625/#";
 const char* mqtt_client_id = "Esp8266Client";
 
 WiFiClient espclient;
@@ -95,38 +95,52 @@ void callback(char* topic, byte* payload, unsigned int length) {
     message += (char)payload[i];
   }
 
-  // Extraer los valores de RX y TX del mensaje
-  int rxIndex = message.indexOf("rx:");
-  int txIndex = message.indexOf("tx:");
-  if (rxIndex != -1 && txIndex != -1) {
-    String rxString = message.substring(rxIndex + 3, txIndex - 1);
-    String txString = message.substring(txIndex + 3);
+   // Comparar el topic recibido
+  if (strcmp(topic, "mike5625/redcasa") == 0) {
 
-    // Buscar el índice del espacio en "rx" y "tx" para separar el valor de la unidad
-    int rxSpaceIndex = rxString.indexOf(" ");
-    int txSpaceIndex = txString.indexOf(" ");
-    if (rxSpaceIndex != -1 && txSpaceIndex != -1) {
-      rxValue = rxString.substring(0, rxSpaceIndex).toFloat();
-      txValue = txString.substring(0, txSpaceIndex).toFloat();
+    // Extraer los valores de RX y TX del mensaje
+    int rxIndex = message.indexOf("rx:");
+    int txIndex = message.indexOf("tx:");
+    if (rxIndex != -1 && txIndex != -1) {
+      String rxString = message.substring(rxIndex + 3, txIndex - 1);
+      String txString = message.substring(txIndex + 3);
 
-      // Actualizar la pantalla LCD
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("TX:");
-      lcd.print(rxValue);
-      lcd.print(rxString.substring(rxSpaceIndex));
-      lcd.setCursor(0, 1);
-      lcd.print("RX:");
-      lcd.print(txValue);
-      lcd.print(txString.substring(txSpaceIndex));
+      // Buscar el índice del espacio en "rx" y "tx" para separar el valor de la unidad
+      int rxSpaceIndex = rxString.indexOf(" ");
+      int txSpaceIndex = txString.indexOf(" ");
+      if (rxSpaceIndex != -1 && txSpaceIndex != -1) {
+        rxValue = rxString.substring(0, rxSpaceIndex).toFloat();
+        txValue = txString.substring(0, txSpaceIndex).toFloat();
 
-      // Imprimir en el puerto serie
-      Serial.print("RX: ");
-      Serial.print(rxValue);
-      Serial.println(rxString.substring(rxSpaceIndex));
-      Serial.print("TX: ");
-      Serial.print(txValue);
-      Serial.println(txString.substring(txSpaceIndex));
+        // Actualizar la pantalla LCD
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("TX:");
+        lcd.print(rxValue);
+        lcd.print(rxString.substring(rxSpaceIndex));
+        lcd.setCursor(0, 1);
+        lcd.print("RX:");
+        lcd.print(txValue);
+        lcd.print(txString.substring(txSpaceIndex));
+
+        // Imprimir en el puerto serie
+        Serial.print("TX: ");
+        Serial.print(rxValue);
+        Serial.println(rxString.substring(rxSpaceIndex));
+        Serial.print("RX: ");
+        Serial.print(txValue);
+        Serial.println(txString.substring(txSpaceIndex));
+      }
     }
+  } else {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Top Ip: ");
+    lcd.setCursor(0, 1);
+    lcd.print(message);
+
+    Serial.print("Top Ip: ");
+    Serial.println(message);
   }
+  
 }
